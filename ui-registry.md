@@ -105,3 +105,21 @@ Last updated: 2026-09-10
 
 **Pattern notes:**
 Keep this chapter as one continuous navy-black world. Use blue as an edge and thread accent, never as a wholesale background. The clean portrait cutout has natural cool directional lighting and transparent edges, so it belongs to the canvas rather than a dark rectangular panel; education imagery is a full-card atmosphere layer with HTML content above it.
+
+### About journey
+
+File: src/components/about/AboutJourney.tsx
+Last updated: 2026-09-12
+
+| Area | Visual rule |
+| --- | --- |
+| Stage | One `850svh` scroll container with one sticky `100svh` viewport and `1400px` perspective. |
+| Background | One persistent WebThreads instance; camera transitions are created on its wrapper through restrained scale, brightness, depth and rotation. |
+| About | Full headline lines and portrait arrive from separate Z depths, settle once, then hold for reading. |
+| Education | Two physical image cards enter from opposite sides, overshoot subtly, settle, and expand in-place with GSAP Flip. |
+| Experience | Existing MorphSlider opens from a thin distant slit; its HTML metadata stays independent and readable. |
+| Contact | Calm centered arrival from depth with the threads reduced to a faint blue trace. |
+| Mobile/reduced motion | Normal vertical chapters with all content visible and interactions preserved; no pinned 3D timeline. |
+
+**Pattern notes:**
+Depth is structural, not decorative: incoming DOM layers live between `-700px` and `-120px`, settle at `0`, and only pass the camera up to `+300px`. Each chapter includes an explicit reading/interaction hold. Primary transforms are tied to one reversible master timeline; local state is reserved for education details and the interactive experience carousel.
