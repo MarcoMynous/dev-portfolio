@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import { useLayoutEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -12,12 +10,12 @@ import {
   ArrowRight,
   ArrowUpRight,
   CalendarDays,
-  ExternalLink,
   Mail,
   MapPin,
   X,
 } from 'lucide-react';
 import MorphSlider from './MorphSlider';
+import ProfileCard from './ProfileCard';
 import WebThreads from './WebThreads';
 import styles from './AboutJourney.module.css';
 
@@ -60,10 +58,15 @@ interface SchoolItem {
   number: string;
   name: string;
   degree: string;
+  handle: string;
+  status: string;
   location: string;
   years: string;
   image: string;
+  miniAvatarUrl?: string;
   tags: string[];
+  innerGradient: string;
+  behindGlowColor: string;
   detail: string;
   highlights: string[];
 }
@@ -73,10 +76,15 @@ const schools: SchoolItem[] = [
     number: '01',
     name: 'Covenant University',
     degree: 'B.Sc. Computer Science',
+    handle: 'covenant_uni',
+    status: 'First Class Honours',
     location: 'Ota, Ogun State, Nigeria',
     years: '2019 — 2023',
     image: '/images/project-portal.webp',
+    miniAvatarUrl: '/images/project-portal.webp',
     tags: ['Undergraduate', 'Computer Science', 'First Class'],
+    innerGradient: 'linear-gradient(145deg, rgba(37,99,235,0.45) 0%, rgba(147,197,253,0.22) 100%)',
+    behindGlowColor: 'rgba(96, 165, 250, 0.65)',
     detail:
       'Rigorous foundation in computer science, distributed architectures, database engines, algorithms, and collaborative product engineering.',
     highlights: [
@@ -89,10 +97,15 @@ const schools: SchoolItem[] = [
     number: '02',
     name: 'Central College',
     degree: 'Secondary Education',
+    handle: 'central_college',
+    status: 'Science & Technology',
     location: 'Lagos, Nigeria',
     years: '2016 — 2019',
     image: '/images/about/experience-city.png',
+    miniAvatarUrl: '/images/about/experience-city.png',
     tags: ['High School', 'Science & Technology'],
+    innerGradient: 'linear-gradient(145deg, rgba(30,58,138,0.45) 0%, rgba(96,165,250,0.22) 100%)',
+    behindGlowColor: 'rgba(96, 165, 250, 0.65)',
     detail:
       'An intensive science and mathematics curriculum that fostered analytical reasoning, technical curiosity, and structured problem solving.',
     highlights: [
@@ -194,7 +207,11 @@ export default function AboutJourney() {
         const expScene = root.querySelector('#scene-experience') as HTMLElement | null;
         const contactScene = root.querySelector('#scene-contact') as HTMLElement | null;
 
-        // Reset all 3D layers to pristine starting states
+        // Ensure scenes are strictly visible ONLY in their respective scroll phases
+        gsap.set(aboutScene, { autoAlpha: 1, pointerEvents: 'none' });
+        gsap.set([eduScene, expScene, contactScene], { autoAlpha: 0, pointerEvents: 'none' });
+
+        // Reset all 3D child elements
         gsap.set(
           '[data-about-eyebrow], [data-about-description], [data-about-portrait], [data-edu-heading], [data-exp-heading], [data-exp-stage], [data-exp-meta], [data-door], [data-contact-part]',
           { autoAlpha: 0 }
@@ -205,7 +222,7 @@ export default function AboutJourney() {
         gsap.set('[data-door]', { autoAlpha: 0 });
         gsap.set('[data-exp-live]', { autoAlpha: 1 });
 
-        // Master Timeline (0 to 100 progress units mapped across 850vh)
+        // Master ScrollTrigger Timeline (0 to 100 progress units mapped across 850vh)
         const timeline = gsap.timeline({
           defaults: { ease: 'power2.out' },
           scrollTrigger: {
@@ -348,10 +365,17 @@ export default function AboutJourney() {
             25
           );
 
+        if (aboutScene) {
+          timeline.to(aboutScene, { autoAlpha: 0, duration: 0.4 }, 32.5);
+        }
+
         // ========================================================
         // CHAPTER 2: EDUCATION (0.33 - 0.63)
         // ========================================================
         // 0.33 - 0.48: EDUCATION ENTER
+        if (eduScene) {
+          timeline.set(eduScene, { autoAlpha: 1 }, 33);
+        }
         timeline
           .to(
             thread,
@@ -472,10 +496,17 @@ export default function AboutJourney() {
             55
           );
 
+        if (eduScene) {
+          timeline.to(eduScene, { autoAlpha: 0, duration: 0.4 }, 62.5);
+        }
+
         // ========================================================
         // CHAPTER 3: EXPERIENCE (0.63 - 0.92)
         // ========================================================
         // 0.63 - 0.78: EXPERIENCE ENTER
+        if (expScene) {
+          timeline.set(expScene, { autoAlpha: 1 }, 63);
+        }
         timeline
           .to(
             thread,
@@ -586,9 +617,16 @@ export default function AboutJourney() {
             88
           );
 
+        if (expScene) {
+          timeline.to(expScene, { autoAlpha: 0, duration: 0.4 }, 91.5);
+        }
+
         // ========================================================
         // CHAPTER 4: CONTACT (0.92 - 1.00)
         // ========================================================
+        if (contactScene) {
+          timeline.set(contactScene, { autoAlpha: 1 }, 92);
+        }
         timeline.fromTo(
           contactParts,
           {
@@ -640,23 +678,6 @@ export default function AboutJourney() {
     if (portraitInnerRef.current) {
       gsap.to(portraitInnerRef.current, { x: 0, y: 0, duration: 0.6, ease: 'power2.out', overwrite: true });
     }
-  };
-
-  // Education card 3D tilt
-  const handleCardPointer = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (activeSchool !== null) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const nx = (event.clientX - rect.left) / rect.width - 0.5;
-    const ny = (event.clientY - rect.top) / rect.height - 0.5;
-    event.currentTarget.style.setProperty('--card-rx', `${-ny * 4}deg`);
-    event.currentTarget.style.setProperty('--card-ry', `${nx * 6}deg`);
-    event.currentTarget.style.setProperty('--glow-x', `${(nx + 0.5) * 100}%`);
-    event.currentTarget.style.setProperty('--glow-y', `${(ny + 0.5) * 100}%`);
-  };
-
-  const resetCardPointer = (event: React.PointerEvent<HTMLDivElement>) => {
-    event.currentTarget.style.setProperty('--card-rx', '0deg');
-    event.currentTarget.style.setProperty('--card-ry', '0deg');
   };
 
   // GSAP Flip for Education detail view
@@ -748,7 +769,7 @@ export default function AboutJourney() {
             >
               <div ref={portraitInnerRef} className={styles.portraitInner}>
                 <img
-                  src="/images/about/portrait-full-transparent.png"
+                  src="/images/about/portrait-clean.png"
                   alt="Portrait of Marco, Software Engineer"
                 />
                 <div className={styles.portraitBadge}>
@@ -770,7 +791,7 @@ export default function AboutJourney() {
         </article>
 
         {/* ========================================================
-            CHAPTER 2: EDUCATION
+            CHAPTER 2: EDUCATION (Using ProfileCard)
             ======================================================== */}
         <article className={styles.scene} id="scene-education">
           <div className={styles.educationGrid}>
@@ -791,52 +812,30 @@ export default function AboutJourney() {
 
             <div className={styles.schoolsWrapper}>
               {schools.map((school, index) => (
-                <div className={styles.schoolCardMotion} data-edu-card key={school.number}>
-                  <div
-                    ref={(node) => {
-                      educationCardRefs.current[index] = node;
-                    }}
-                    className={styles.schoolCard}
-                    onPointerMove={handleCardPointer}
-                    onPointerLeave={resetCardPointer}
-                    onClick={() => activeSchool === null && openSchool(index)}
-                    onKeyDown={(e) => {
-                      if ((e.key === 'Enter' || e.key === ' ') && activeSchool === null) {
-                        e.preventDefault();
-                        openSchool(index);
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for ${school.name}`}
-                  >
-                    <div className={styles.schoolCardGlow} />
-                    <div className={styles.schoolCardMedia}>
-                      <img src={school.image} alt={school.name} />
-                    </div>
-                    <div className={styles.schoolCardScrim} />
-                    <div className={styles.schoolCardContent}>
-                      <div className={styles.schoolCardHeader}>
-                        <span className={styles.schoolCardNumber}>{school.number}</span>
-                        <span className={styles.schoolCardYears}>{school.years}</span>
-                      </div>
-                      <div className={styles.schoolCardFooter}>
-                        <h3 className={styles.schoolCardName}>{school.name}</h3>
-                        <p className={styles.schoolCardDegree}>{school.degree}</p>
-                        <small className={styles.schoolCardLocation}>{school.location}</small>
-                        <div className={styles.schoolCardTags}>
-                          {school.tags.map((tag) => (
-                            <span className={styles.schoolTag} key={tag}>
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        <span className={styles.schoolCardAction}>
-                          VIEW DETAILS <ArrowUpRight size={14} />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                <div
+                  ref={(node) => {
+                    educationCardRefs.current[index] = node;
+                  }}
+                  className={styles.schoolCardMotion}
+                  data-edu-card
+                  key={school.number}
+                >
+                  <ProfileCard
+                    name={school.name}
+                    title={school.degree}
+                    handle={school.handle}
+                    status={school.status}
+                    contactText="Explore"
+                    avatarUrl={school.image}
+                    miniAvatarUrl={school.miniAvatarUrl || school.image}
+                    innerGradient={school.innerGradient}
+                    behindGlowEnabled={true}
+                    behindGlowColor={school.behindGlowColor}
+                    showUserInfo={true}
+                    enableTilt={true}
+                    enableMobileTilt={false}
+                    onContactClick={() => openSchool(index)}
+                  />
                 </div>
               ))}
             </div>
@@ -922,14 +921,14 @@ export default function AboutJourney() {
                   items={morphItems}
                   startIndex={0}
                   transition="melt"
-                  intensity={0.48}
-                  aberration={0.2}
-                  drift={0.18}
+                  intensity={0.85}
+                  scale={3.2}
+                  aberration={0.4}
+                  drift={0.25}
+                  duration={1.2}
+                  ease="power2.inOut"
                   autoplay={false}
                   overlayColor="#05060a"
-                  duration={1.1}
-                  ease="power2.inOut"
-                  scale={2.4}
                   loop
                   radius={24}
                   showCaptions={false}

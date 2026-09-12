@@ -67,6 +67,8 @@
   padding: clamp(1.5rem, 4vw, 5rem);
   transform-style: preserve-3d;
   pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
   will-change: transform, opacity;
 }
 
@@ -271,7 +273,7 @@
    ======================================================== */
 .educationGrid {
   display: grid;
-  grid-template-columns: minmax(320px, 0.85fr) minmax(560px, 1.15fr);
+  grid-template-columns: minmax(320px, 0.8fr) minmax(620px, 1.2fr);
   align-items: center;
   gap: clamp(2rem, 5vw, 5rem);
   width: min(100%, 1400px);
@@ -303,180 +305,14 @@
   display: flex;
   gap: clamp(1.25rem, 2.5vw, 2.5rem);
   justify-content: center;
+  align-items: center;
   transform-style: preserve-3d;
 }
 
 .schoolCardMotion {
-  width: min(100%, 360px);
+  width: min(100%, 380px);
   transform-style: preserve-3d;
   will-change: transform, opacity;
-}
-
-/* ProfileCard-based Education Card */
-.schoolCard {
-  position: relative;
-  width: 100%;
-  height: 480px;
-  border-radius: 24px;
-  background: rgba(10, 18, 36, 0.65);
-  border: 1px solid rgba(96, 165, 250, 0.22);
-  backdrop-filter: blur(16px);
-  overflow: hidden;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  transform: perspective(1000px) rotateX(var(--card-rx, 0deg))
-    rotateY(var(--card-ry, 0deg));
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  will-change: transform;
-}
-
-.schoolCard:hover {
-  border-color: rgba(96, 165, 250, 0.5);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(37, 99, 235, 0.2);
-}
-
-.schoolCardGlow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    circle at var(--glow-x, 50%) var(--glow-y, 50%),
-    rgba(96, 165, 250, 0.22) 0%,
-    transparent 65%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.schoolCard:hover .schoolCardGlow {
-  opacity: 1;
-}
-
-.schoolCardMedia {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.schoolCardMedia img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.65) saturate(1.1);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
-}
-
-.schoolCard:hover .schoolCardMedia img {
-  transform: scale(1.05);
-  filter: brightness(0.75) saturate(1.2);
-}
-
-.schoolCardScrim {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: linear-gradient(
-    to bottom,
-    rgba(3, 5, 10, 0.3) 0%,
-    rgba(3, 5, 10, 0.6) 40%,
-    rgba(3, 5, 10, 0.95) 100%
-  );
-}
-
-.schoolCardContent {
-  position: relative;
-  z-index: 3;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1.8rem;
-  box-sizing: border-box;
-}
-
-.schoolCardHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono, monospace);
-  font-size: 0.78rem;
-}
-
-.schoolCardNumber {
-  color: #60a5fa;
-  font-weight: 600;
-}
-
-.schoolCardYears {
-  color: #94a3b8;
-  padding: 0.2rem 0.55rem;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.schoolCardFooter {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.schoolCardName {
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: #f8fafc;
-  margin: 0;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
-.schoolCardDegree {
-  font-size: 0.95rem;
-  color: #93c5fd;
-  margin: 0;
-  font-weight: 500;
-}
-
-.schoolCardLocation {
-  font-size: 0.78rem;
-  color: #94a3b8;
-  margin: 0.1rem 0 0.5rem;
-}
-
-.schoolCardTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-bottom: 0.8rem;
-}
-
-.schoolTag {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.68rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
-}
-
-.schoolCardAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-family: var(--font-mono, monospace);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #60a5fa;
-  margin-top: 0.2rem;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.schoolCard:hover .schoolCardAction {
-  color: #ffffff;
-  transform: translateX(4px);
 }
 
 /* ========================================================
@@ -943,10 +779,6 @@
   .schoolCardMotion {
     width: 100%;
     max-width: 360px;
-  }
-
-  .schoolCard {
-    height: 380px;
   }
 
   .experienceStage {
