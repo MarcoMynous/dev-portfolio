@@ -1,0 +1,6 @@
+'use client';
+import { useState, type CSSProperties } from 'react';
+import { ArrowUpRight, X } from 'lucide-react';
+import styles from './AboutChapter.module.css';
+type School={number:string;name:string;program:string;location:string;years:string;image:string;tags:string[]};
+export default function EducationCard({school}:{school:School}){const [open,setOpen]=useState(false);const [tilt,setTilt]=useState({x:0,y:0});return <><button className={styles.schoolCard} style={{'--x':`${tilt.x*3}px`,'--y':`${tilt.y*2}px`} as CSSProperties} onPointerMove={e=>{const r=e.currentTarget.getBoundingClientRect();setTilt({x:(e.clientX-r.left)/r.width-.5,y:(e.clientY-r.top)/r.height-.5})}} onPointerLeave={()=>setTilt({x:0,y:0})} onClick={()=>setOpen(true)}><span>{school.number}</span><img src={school.image} alt=""/><div><h3>{school.name}</h3><p>{school.program}</p><p>{school.location} · {school.years}</p><aside>{school.tags.map(tag=><i key={tag}>{tag}</i>)}</aside><strong>VIEW EDUCATION <ArrowUpRight size={15}/></strong></div></button>{open&&<div className={styles.overlay}><button onClick={()=>setOpen(false)}><X/> CLOSE</button><article><span>{school.number}</span><h2>{school.name}</h2><p>{school.program}</p><p>{school.location}<br/>{school.years}</p><p>Education details will be added here.</p></article></div>}</>}

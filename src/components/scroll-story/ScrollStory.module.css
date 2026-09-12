@@ -1,0 +1,21 @@
+.storySection { position: relative; width: 100%; height: 100svh; background: #05070d; }
+.pinnedViewport { position: sticky; top: 0; width: 100vw; height: 100vh; height: 100svh; min-height: 100svh; overflow: hidden; isolation: isolate; }
+.visualStage { position: absolute; inset: -16px; z-index: 0; will-change: transform; }
+.finaleScale { position: absolute; inset: 0; transform-origin: center; will-change: transform; }
+.videoOverlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(3,5,10,.88) 0%, rgba(3,5,10,.70) 28%, rgba(3,5,10,.22) 55%, rgba(3,5,10,.05) 100%); }
+.heroContent { position: relative; z-index: 3; width: 100%; height: 100%; max-width: 1440px; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; padding-inline: clamp(32px, 6vw, 96px); }
+.textColumn { position: relative; width: min(42%, 560px); min-width: 0; min-height: 420px; display: flex; align-items: center; }
+.stepBlock { position: absolute; width: 100%; display: flex; flex-direction: column; gap: 1.5rem; pointer-events: none; }
+.headline { font-size: clamp(3.5rem, 7vw, 7.5rem); font-weight: 800; line-height: .91; letter-spacing: -.065em; }
+.headlineLine { display: block; }
+.description { max-width: 32rem; font-size: clamp(1rem, 1.35vw, 1.2rem); color: #d6dce8; line-height: 1.6; }
+.buttonGroup { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: .5rem; }
+.labelsList { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .25rem; }
+.labelItem { padding: .35rem .75rem; border: 1px solid rgba(255,255,255,.16); color: #d6dce8; font: .8rem var(--font-mono); letter-spacing: .02em; }
+.scrollIndicator { position: absolute; z-index: 3; right: clamp(32px, 6vw, 96px); bottom: clamp(28px, 5vh, 56px); display: flex; align-items: center; gap: .75rem; color: rgba(255,255,255,.72); font: .7rem var(--font-mono); letter-spacing: .1em; }
+.scrollIndicator svg { animation: bounce 2s infinite ease-in-out; }
+.storyProgress { position: absolute; z-index: 3; right: clamp(32px, 6vw, 96px); top: 50%; display: flex; flex-direction: column; gap: .65rem; transform: translateY(-50%); }
+.storyProgress span { width: 2px; height: 1.75rem; background: rgba(255,255,255,.25); transition: background-color .35s ease, transform .35s ease; }
+.storyProgress .progressActive { background: #fff; transform: scaleY(1.25); }
+@keyframes bounce { 50% { transform: translateY(6px); } }
+@media (max-width: 767px) { .heroContent { padding-inline: 1.5rem; padding-top: var(--header-height); } .textColumn { width: min(100%, 30rem); min-height: 360px; } .headline { font-size: clamp(3rem, 15vw, 5rem); } .scrollIndicator { left: 1.5rem; right: auto; bottom: 1.75rem; } .storyProgress { display: none; } .videoOverlay { background: linear-gradient(90deg, rgba(3,5,10,.86), rgba(3,5,10,.30) 100%); } }

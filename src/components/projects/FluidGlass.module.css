@@ -1,0 +1,2 @@
+.glass { position: absolute; z-index: 3; inset: 0; overflow: hidden; pointer-events: auto; }
+.glass canvas { width: 100% !important; height: 100% !important; touch-action: none; }

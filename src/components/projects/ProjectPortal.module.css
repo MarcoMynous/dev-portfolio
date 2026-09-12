@@ -1,0 +1,6 @@
+.portal { position: relative; height: 450vh; overflow: visible; background: #03060c; isolation: isolate; }
+.expand { position: relative; z-index: 1; }
+.portalCopy { align-self: flex-start; width: min(30rem, 84vw); color: #fff; text-align: left; transition: opacity .08s linear; }
+.portalCopy span { display: block; margin-bottom: 1.2rem; color: rgba(255,255,255,.78); font-size: .63rem; font-weight: 700; letter-spacing: .22em; }
+.portalCopy h2 { font-size: clamp(3rem, 7.4vw, 7.5rem); font-weight: 600; letter-spacing: -.075em; line-height: .9; }
+@media (max-width: 768px) { .portal { height: 450svh; } .portalCopy h2 { font-size: clamp(2.6rem, 12vw, 4.4rem); } }

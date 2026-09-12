@@ -1,0 +1,384 @@
+.wrap {
+  position: relative;
+  touch-action: none;
+  perspective: 750px;
+  transform: translate3d(0, 0, 0.1px);
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.behindGlow {
+  position: absolute;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 40px;
+  filter: blur(50px) saturate(1.3);
+  opacity: calc(0.85 * var(--card-opacity, 0));
+  transition: opacity 0.3s ease-out;
+  background: radial-gradient(
+    circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    var(--behind-glow-color, rgba(100, 180, 255, 0.6)) 0%,
+    transparent var(--behind-glow-size, 60%)
+  );
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-radius: var(--card-radius, 28px);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cardBody {
+  position: relative;
+  width: 100%;
+  min-height: 560px;
+  height: min(72svh, 620px);
+  aspect-ratio: 0.72;
+  border-radius: var(--card-radius, 28px);
+  overflow: hidden;
+  background: #040711;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: rgba(0, 0, 0, 0.9) calc((var(--pointer-from-left, 0.5) * 16px) - 8px)
+    calc((var(--pointer-from-top, 0.5) * 28px) - 14px) 35px -8px;
+  transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  transform: translateZ(0) rotateX(0deg) rotateY(0deg);
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.75rem;
+}
+
+.shell:global(.active) .cardBody {
+  border-color: rgba(120, 180, 255, 0.45);
+  box-shadow: rgba(0, 0, 0, 0.95) calc((var(--pointer-from-left, 0.5) * 20px) - 10px)
+    calc((var(--pointer-from-top, 0.5) * 32px) - 16px) 45px -8px,
+    0 0 40px -10px var(--behind-glow-color, rgba(100, 180, 255, 0.3));
+}
+
+.innerGradient {
+  position: absolute;
+  inset: 0;
+  background-image: var(--inner-gradient);
+  background-color: rgba(4, 7, 17, 0.92);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shineLayer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+  mix-blend-mode: color-dodge;
+  transform: translate3d(0, 0, 1px);
+  filter: brightness(0.72) contrast(1.35) saturate(0.45) opacity(0.55);
+  animation: pcHoloBg 18s linear infinite;
+  background-size: cover;
+  background-position: center;
+  background-image: repeating-linear-gradient(
+      0deg,
+      var(--sunpillar-clr-1, hsl(2, 100%, 73%)) 5%,
+      var(--sunpillar-clr-2, hsl(53, 100%, 69%)) 10%,
+      var(--sunpillar-clr-3, hsl(93, 100%, 69%)) 15%,
+      var(--sunpillar-clr-4, hsl(176, 100%, 76%)) 20%,
+      var(--sunpillar-clr-5, hsl(228, 100%, 74%)) 25%,
+      var(--sunpillar-clr-6, hsl(283, 100%, 73%)) 30%,
+      var(--sunpillar-clr-1, hsl(2, 100%, 73%)) 35%
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      #0e152e 0%,
+      hsl(180, 10%, 60%) 3.8%,
+      hsl(180, 29%, 66%) 4.5%,
+      hsl(180, 10%, 60%) 5.2%,
+      #0e152e 10%,
+      #0e152e 12%
+    ),
+    radial-gradient(
+      farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      hsla(0, 0%, 0%, 0.1) 12%,
+      hsla(0, 0%, 0%, 0.15) 20%,
+      hsla(0, 0%, 0%, 0.25) 120%
+    );
+}
+
+@keyframes pcHoloBg {
+  0% {
+    background-position: 0 var(--background-y, 50%), 0 0, center;
+  }
+  100% {
+    background-position: 0 var(--background-y, 50%), 90% 90%, center;
+  }
+}
+
+.glareLayer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 4;
+  overflow: hidden;
+  transform: translate3d(0, 0, 1.2px);
+  mix-blend-mode: overlay;
+  filter: brightness(0.85) contrast(1.25);
+  background-image: radial-gradient(
+    farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    hsl(220, 45%, 85%) 10%,
+    hsla(215, 55%, 35%, 0.75) 85%
+  );
+}
+
+.backdropArtwork {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: luminosity;
+  opacity: 0.65;
+  transition: opacity 0.3s ease;
+}
+
+.shell:global(.active) .backdropArtwork {
+  opacity: 0.85;
+}
+
+.backdropImg {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 115%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  transform-origin: 50% 100%;
+  transform: translateX(calc(-50% + (var(--pointer-from-left, 0.5) - 0.5) * 14px))
+    scaleY(calc(1 + (var(--pointer-from-top, 0.5) - 0.5) * 0.03))
+    scaleX(calc(1 + (var(--pointer-from-left, 0.5) - 0.5) * 0.02));
+  transition: transform 0.15s ease-out;
+  filter: saturate(0.8) contrast(1.1);
+}
+
+.cardHeader {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transform: translate3d(
+    calc((var(--pointer-from-left, 0.5) - 0.5) * -6px),
+    calc((var(--pointer-from-top, 0.5) - 0.5) * -6px),
+    4px
+  );
+}
+
+.badgeNumber {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #7bb5ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(10, 25, 50, 0.65);
+  border: 1px solid rgba(120, 180, 255, 0.3);
+  border-radius: 99px;
+  backdrop-filter: blur(10px);
+}
+
+.badgeCategory {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mainInfo {
+  position: relative;
+  z-index: 5;
+  margin-top: 1rem;
+  transform: translate3d(
+    calc((var(--pointer-from-left, 0.5) - 0.5) * -10px),
+    calc((var(--pointer-from-top, 0.5) - 0.5) * -10px),
+    6px
+  );
+}
+
+.schoolName {
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(120deg, #ffffff 20%, #d8e5ff 60%, #7db9ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.degreeTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 0.4rem 0;
+  line-height: 1.35;
+}
+
+.metaInfo {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #93a5c4;
+  line-height: 1.5;
+}
+
+.tagsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.tagPill {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #d1ddf1;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+
+.bottomBar {
+  position: relative;
+  z-index: 6;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: rgba(8, 14, 28, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transform: translate3d(
+    calc((var(--pointer-from-left, 0.5) - 0.5) * -4px),
+    calc((var(--pointer-from-top, 0.5) - 0.5) * -4px),
+    8px
+  );
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.identityBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.miniAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(120, 180, 255, 0.4);
+  flex-shrink: 0;
+  background: #0d1a33;
+}
+
+.miniAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.identityText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+}
+
+.handleText {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  line-height: 1;
+}
+
+.statusText {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: #8fa3c7;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(40, 100, 220, 0.35);
+  border: 1px solid rgba(120, 180, 255, 0.4);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  backdrop-filter: blur(10px);
+}
+
+.viewBtn:hover {
+  background: rgba(55, 125, 255, 0.65);
+  border-color: rgba(180, 220, 255, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(100, 180, 255, 0.4);
+}
+
+@media (max-width: 767px) {
+  .wrap {
+    max-width: 100%;
+  }
+
+  .cardBody {
+    min-height: 500px;
+    height: auto;
+    aspect-ratio: auto;
+    padding: 1.4rem;
+  }
+
+  .schoolName {
+    font-size: 1.85rem;
+  }
+}

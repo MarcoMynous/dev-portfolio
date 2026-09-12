@@ -1,0 +1,186 @@
+.container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  padding: 0.5rem 0;
+}
+
+.verticalContainer {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  user-select: none;
+}
+
+.track {
+  display: flex;
+  flex-direction: row;
+  width: max-content;
+  will-change: transform;
+  align-items: center;
+}
+
+.verticalTrack {
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  width: 100%;
+  will-change: transform;
+  align-items: center;
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.verticalList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-right: var(--logoloop-gap, 32px);
+  font-size: var(--logoloop-logoHeight, 28px);
+  line-height: 1;
+}
+
+.verticalItem {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-bottom: var(--logoloop-gap, 32px);
+  font-size: var(--logoloop-logoHeight, 28px);
+  line-height: 1;
+}
+
+.nodeWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #e2e8f0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+}
+
+.item:hover .nodeWrapper {
+  transform: scale(1.15);
+  color: #ffffff;
+}
+
+.logoTitle {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(226, 232, 240, 0.75);
+  transition: color 0.2s ease;
+}
+
+.item:hover .logoTitle {
+  color: #ffffff;
+}
+
+.logoImg {
+  height: var(--logoloop-logoHeight, 28px);
+  width: auto;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.item:hover .logoImg {
+  transform: scale(1.15);
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  transition: opacity 0.2s linear;
+}
+
+.logoLink:hover {
+  opacity: 0.88;
+}
+
+.logoLink:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 4px;
+}
+
+/* Gradient Fade Out Overlays */
+.fadeLeft {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  width: clamp(30px, 10vw, 140px);
+  background: linear-gradient(
+    to right,
+    var(--logoloop-fadeColor, #050507) 0%,
+    rgba(5, 5, 7, 0) 100%
+  );
+}
+
+.fadeRight {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
+  width: clamp(30px, 10vw, 140px);
+  background: linear-gradient(
+    to left,
+    var(--logoloop-fadeColor, #050507) 0%,
+    rgba(5, 5, 7, 0) 100%
+  );
+}
+
+.fadeTop {
+  pointer-events: none;
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 10;
+  height: clamp(24px, 8%, 100px);
+  background: linear-gradient(
+    to bottom,
+    var(--logoloop-fadeColor, #050507) 0%,
+    rgba(5, 5, 7, 0) 100%
+  );
+}
+
+.fadeBottom {
+  pointer-events: none;
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 10;
+  height: clamp(24px, 8%, 100px);
+  background: linear-gradient(
+    to top,
+    var(--logoloop-fadeColor, #050507) 0%,
+    rgba(5, 5, 7, 0) 100%
+  );
+}
