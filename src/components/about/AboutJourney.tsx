@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -17,6 +17,7 @@ import {
 import MorphSlider from './MorphSlider';
 import ProfileCard from './ProfileCard';
 import WebThreads from './WebThreads';
+import { getGlobalLenis } from '@/hooks/useLenis';
 import styles from './AboutJourney.module.css';
 
 function GithubIcon({ size = 15 }: { size?: number }) {
@@ -177,7 +178,6 @@ export default function AboutJourney() {
   const portraitInnerRef = useRef<HTMLDivElement>(null);
   const educationCardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [activeSchool, setActiveSchool] = useState<number | null>(null);
-  const [selectedExperience, setSelectedExperience] = useState<ExperienceItem | null>(null);
   const [experienceIndex, setExperienceIndex] = useState(0);
 
   const morphItems = useMemo(
@@ -655,6 +655,56 @@ export default function AboutJourney() {
         };
       });
 
+      media.add('(max-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
+        const scenes = {
+          about: root.querySelector('#scene-about') as HTMLElement | null,
+          education: root.querySelector('#scene-education') as HTMLElement | null,
+          experience: root.querySelector('#scene-experience') as HTMLElement | null,
+          contact: root.querySelector('#scene-contact') as HTMLElement | null,
+        };
+
+        gsap.set(Object.values(scenes), { autoAlpha: 0, pointerEvents: 'none' });
+        gsap.set(scenes.about, { autoAlpha: 1 });
+
+        const timeline = gsap.timeline({
+          defaults: { ease: 'power2.inOut' },
+          scrollTrigger: {
+            trigger: root,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.25,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        timeline
+          .fromTo(scenes.about, { y: 32, z: -180, scale: 0.94 }, { y: 0, z: 0, scale: 1, duration: 15 }, 0)
+          .set(scenes.about, { pointerEvents: 'auto' }, 15)
+          .set(scenes.about, { pointerEvents: 'none' }, 25)
+          .to(scenes.about, { x: '-18vw', z: 110, scale: 1.04, autoAlpha: 0, duration: 8 }, 25)
+          .to(thread, { scale: 1.32, filter: 'brightness(1.18)', opacity: 0.78, duration: 8 }, 25)
+          .fromTo(scenes.education, { x: '16vw', z: -220, scale: 0.92, autoAlpha: 0 }, { x: 0, z: 0, scale: 1, autoAlpha: 1, duration: 13 }, 33)
+          .to(thread, { scale: 1.06, filter: 'brightness(1)', opacity: 0.46, duration: 6 }, 33)
+          .set(scenes.education, { pointerEvents: 'auto' }, 46)
+          .set(scenes.education, { pointerEvents: 'none' }, 55)
+          .to(scenes.education, { x: '18vw', z: 120, scale: 1.04, autoAlpha: 0, duration: 8 }, 55)
+          .to(thread, { scale: 1.3, rotateZ: -0.5, filter: 'brightness(1.16)', opacity: 0.76, duration: 8 }, 55)
+          .fromTo(scenes.experience, { y: 38, z: -220, scale: 0.92, autoAlpha: 0 }, { y: 0, z: 0, scale: 1, autoAlpha: 1, duration: 13 }, 63)
+          .to(thread, { scale: 1.05, rotateZ: 0, filter: 'brightness(1)', opacity: 0.42, duration: 6 }, 63)
+          .set(scenes.experience, { pointerEvents: 'auto' }, 76)
+          .set(scenes.experience, { pointerEvents: 'none' }, 84)
+          .to(scenes.experience, { y: -35, z: 120, scale: 1.04, autoAlpha: 0, duration: 8 }, 84)
+          .to(thread, { scale: 1.25, filter: 'brightness(.95)', opacity: 0.5, duration: 5 }, 84)
+          .fromTo(scenes.contact, { y: 30, z: -180, scale: 0.94, autoAlpha: 0 }, { y: 0, z: 0, scale: 1, autoAlpha: 1, duration: 8 }, 92)
+          .to(thread, { scale: 1, filter: 'brightness(.65)', opacity: 0.12, duration: 8 }, 92)
+          .set(scenes.contact, { pointerEvents: 'auto' }, 97);
+
+        return () => {
+          timeline.scrollTrigger?.kill();
+          timeline.kill();
+        };
+      });
+
       return () => media.revert();
     }, root);
 
@@ -684,19 +734,62 @@ export default function AboutJourney() {
   const openSchool = (index: number) => {
     const card = educationCardRefs.current[index];
     if (!card) return;
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     const state = Flip.getState(card);
     flushSync(() => setActiveSchool(index));
-    Flip.from(state, { duration: 0.75, ease: 'power3.inOut', absolute: true });
+    Flip.from(state, { duration: 0.75, ease: 'power3.inOut' });
+    requestAnimationFrame(() => {
+      const stage = rootRef.current?.firstElementChild as HTMLElement | null;
+      if (stage) stage.scrollTop = 0;
+    });
   };
 
-  const closeSchool = () => {
+  const closeSchool = useCallback(() => {
     if (activeSchool === null) return;
     const card = educationCardRefs.current[activeSchool];
     if (!card) return;
     const state = Flip.getState(card);
     flushSync(() => setActiveSchool(null));
-    Flip.from(state, { duration: 0.65, ease: 'power3.inOut', absolute: true });
-  };
+    Flip.from(state, { duration: 0.65, ease: 'power3.inOut' });
+  }, [activeSchool]);
+
+  useEffect(() => {
+    if (activeSchool === null) return;
+
+    const scrollY = window.scrollY;
+    const lenis = getGlobalLenis();
+    lenis?.stop();
+    const preventScroll = (event: Event) => event.preventDefault();
+    const restoreScroll = () => {
+      if (Math.abs(window.scrollY - scrollY) > 1) window.scrollTo(0, scrollY);
+    };
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeSchool();
+        return;
+      }
+
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener('wheel', preventScroll, { passive: false, capture: true });
+    window.addEventListener('touchmove', preventScroll, { passive: false, capture: true });
+    window.addEventListener('scroll', restoreScroll, { passive: true });
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      window.removeEventListener('wheel', preventScroll, true);
+      window.removeEventListener('touchmove', preventScroll, true);
+      window.removeEventListener('scroll', restoreScroll);
+      window.removeEventListener('keydown', onKeyDown);
+      window.scrollTo(0, scrollY);
+      lenis?.scrollTo(scrollY, { immediate: true, force: true });
+      lenis?.start();
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+  }, [activeSchool, closeSchool]);
 
   return (
     <section ref={rootRef} className={styles.journey} aria-label="Cinematic 3D Scroll Journey">
@@ -769,7 +862,7 @@ export default function AboutJourney() {
             >
               <div ref={portraitInnerRef} className={styles.portraitInner}>
                 <img
-                  src="/images/about/portrait-clean.png"
+                  src="/images/about/portrait-full-transparent.png"
                   alt="Portrait of Marco, Software Engineer"
                 />
                 <div className={styles.portraitBadge}>
@@ -794,7 +887,15 @@ export default function AboutJourney() {
             CHAPTER 2: EDUCATION (Using ProfileCard)
             ======================================================== */}
         <article className={styles.scene} id="scene-education">
-          <div className={styles.educationGrid}>
+          {activeSchool !== null && (
+            <button
+              type="button"
+              className={styles.modalOverlay}
+              onClick={closeSchool}
+              aria-label="Close education details"
+            />
+          )}
+          <div className={`${styles.educationGrid} ${activeSchool !== null ? styles.educationModalOpen : ''}`}>
             <header className={styles.educationHeading} data-edu-heading>
               <p className={styles.eyebrow}>
                 06 / 07 <span>EDUCATION</span>
@@ -816,9 +917,12 @@ export default function AboutJourney() {
                   ref={(node) => {
                     educationCardRefs.current[index] = node;
                   }}
-                  className={styles.schoolCardMotion}
+                  className={`${styles.schoolCardMotion} ${activeSchool === index ? styles.expandedSchoolCard : ''}`}
                   data-edu-card
+                  data-lenis-prevent={activeSchool === index ? true : undefined}
                   key={school.number}
+                  role={activeSchool === index ? 'dialog' : undefined}
+                  aria-modal={activeSchool === index ? true : undefined}
                 >
                   <ProfileCard
                     name={school.name}
@@ -836,66 +940,27 @@ export default function AboutJourney() {
                     enableMobileTilt={false}
                     onContactClick={() => openSchool(index)}
                   />
+                  {activeSchool === index && (
+                    <div className={styles.expandedSchoolContent} data-lenis-prevent>
+                      <button type="button" className={styles.modalCloseBtn} onClick={closeSchool} aria-label="Close education details">
+                        <X size={14} /> CLOSE
+                      </button>
+                      <p className={styles.eyebrow}>{school.number} / 02 <span>{school.years}</span></p>
+                      <h3 className={styles.modalName}>{school.name}</h3>
+                      <h4 className={styles.modalDegree}>{school.degree}</h4>
+                      <p className={styles.schoolCardLocation}><MapPin size={13} /> {school.location}</p>
+                      <p className={styles.modalDetail}>{school.detail}</p>
+                      <strong className={styles.highlightLabel}>KEY HIGHLIGHTS</strong>
+                      <ul className={styles.highlightList}>
+                        {school.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         </article>
-
-        {/* Education Flip Modal Detail Dialog */}
-        {activeSchool !== null && (
-          <div className={styles.modalOverlay} onClick={closeSchool} role="dialog" aria-modal="true">
-            <article
-              className={styles.modalArticle}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                className={styles.modalCloseBtn}
-                onClick={closeSchool}
-                aria-label="Close dialog"
-              >
-                <X size={14} /> CLOSE
-              </button>
-              <p className={styles.eyebrow}>
-                {schools[activeSchool].number} / 02 <span>{schools[activeSchool].years}</span>
-              </p>
-              <h3 className={styles.modalName}>{schools[activeSchool].name}</h3>
-              <h4 className={styles.modalDegree}>{schools[activeSchool].degree}</h4>
-              <p className={styles.schoolCardLocation}>
-                <MapPin size={13} style={{ display: 'inline', marginRight: 4 }} />
-                {schools[activeSchool].location}
-              </p>
-              <img
-                className={styles.modalImg}
-                src={schools[activeSchool].image}
-                alt={schools[activeSchool].name}
-              />
-              <p className={styles.modalDetail}>{schools[activeSchool].detail}</p>
-              <div style={{ marginTop: '1.5rem' }}>
-                <strong
-                  style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-mono, monospace)',
-                    fontSize: '0.8rem',
-                    color: '#93c5fd',
-                    letterSpacing: '0.08em',
-                    marginBottom: '0.6rem',
-                  }}
-                >
-                  KEY HIGHLIGHTS & ACHIEVEMENTS:
-                </strong>
-                <ul style={{ paddingLeft: '1.2rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.6' }}>
-                  {schools[activeSchool].highlights.map((h, i) => (
-                    <li key={i} style={{ marginBottom: '0.4rem' }}>
-                      {h}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          </div>
-        )}
 
         {/* ========================================================
             CHAPTER 3: EXPERIENCE
@@ -985,83 +1050,12 @@ export default function AboutJourney() {
                   ))}
                 </div>
               </div>
-              <button
-                type="button"
-                className={styles.expViewBtn}
-                data-exp-meta
-                onClick={() => setSelectedExperience(activeExperience)}
-              >
-                VIEW DETAILS <ArrowUpRight size={14} />
+              <button type="button" className={styles.expViewBtn} data-exp-meta disabled>
+                CASE STUDY SOON <ArrowUpRight size={14} />
               </button>
             </div>
           </div>
         </article>
-
-        {/* Experience Detail Modal */}
-        {selectedExperience && (
-          <div
-            className={styles.modalOverlay}
-            onClick={() => setSelectedExperience(null)}
-            role="dialog"
-            aria-modal="true"
-          >
-            <article
-              className={styles.modalArticle}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                className={styles.modalCloseBtn}
-                onClick={() => setSelectedExperience(null)}
-                aria-label="Close dialog"
-              >
-                <X size={14} /> CLOSE
-              </button>
-              <p className={styles.eyebrow}>
-                {selectedExperience.number} / 03 <span>{selectedExperience.period}</span>
-              </p>
-              <h3 className={styles.modalName}>{selectedExperience.company}</h3>
-              <h4 className={styles.modalDegree}>{selectedExperience.role}</h4>
-              <p className={styles.schoolCardLocation}>
-                <MapPin size={13} style={{ display: 'inline', marginRight: 4 }} />
-                {selectedExperience.location}
-              </p>
-              <img
-                className={styles.modalImg}
-                src={selectedExperience.image}
-                alt={selectedExperience.company}
-              />
-              <p className={styles.modalDetail}>{selectedExperience.summary}</p>
-              {selectedExperience.reportTitle && (
-                <div
-                  style={{
-                    marginTop: '1.2rem',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    background: 'rgba(15, 23, 42, 0.65)',
-                    border: '1px solid rgba(96, 165, 250, 0.25)',
-                  }}
-                >
-                  <strong
-                    style={{
-                      display: 'block',
-                      fontFamily: 'var(--font-mono, monospace)',
-                      fontSize: '0.78rem',
-                      color: '#93c5fd',
-                      letterSpacing: '0.06em',
-                      marginBottom: '0.3rem',
-                    }}
-                  >
-                    FEATURED PROJECT / REPORT: {selectedExperience.reportTitle}
-                  </strong>
-                  <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.88rem' }}>
-                    {selectedExperience.reportExcerpt}
-                  </p>
-                </div>
-              )}
-            </article>
-          </div>
-        )}
 
         {/* ========================================================
             CHAPTER 4: CONTACT
@@ -1085,9 +1079,9 @@ export default function AboutJourney() {
               >
                 START A CONVERSATION <ArrowUpRight size={15} />
               </a>
-              <a href="#scene-about" className={styles.secondaryContactBtn}>
-                VIEW RESUME <ArrowUpRight size={15} />
-              </a>
+              <span className={`${styles.secondaryContactBtn} ${styles.disabledContact}`} aria-disabled="true">
+                RESUME — COMING SOON
+              </span>
             </div>
 
             <nav className={styles.socialNav} aria-label="Social connections" data-contact-part>
@@ -1099,23 +1093,18 @@ export default function AboutJourney() {
               >
                 <GithubIcon size={15} /> GitHub
               </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                className={styles.socialLink}
-              >
-                <LinkedinIcon size={15} /> LinkedIn
-              </a>
+              <span className={`${styles.socialLink} ${styles.disabledContact}`} aria-disabled="true">
+                <LinkedinIcon size={15} /> LinkedIn — Coming soon
+              </span>
               <a
                 href="mailto:ogochukwuulonnam986@gmail.com"
                 className={styles.socialLink}
               >
                 <Mail size={15} /> Email
               </a>
-              <a href="#scene-about" className={styles.socialLink}>
-                <ArrowLeft size={15} /> Resume
-              </a>
+              <span className={`${styles.socialLink} ${styles.disabledContact}`} aria-disabled="true">
+                <ArrowLeft size={15} /> Resume — Coming soon
+              </span>
             </nav>
 
             <footer className={styles.contactFooter} data-contact-part>
